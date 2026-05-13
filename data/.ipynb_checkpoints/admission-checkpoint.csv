@@ -1,0 +1,1560 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "85f71fa7",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:15.971437Z",
+     "iopub.status.busy": "2025-08-10T18:47:15.971078Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.751583Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.750459Z"
+    },
+    "papermill": {
+     "duration": 1.789122,
+     "end_time": "2025-08-10T18:47:17.753090",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:15.963968",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/kaggle/input/graduate-admissions/Admission_Predict.csv\n",
+      "/kaggle/input/graduate-admissions/Admission_Predict_Ver1.1.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "9f8371d4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.764390Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.763984Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.785226Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.784489Z"
+    },
+    "papermill": {
+     "duration": 0.028937,
+     "end_time": "2025-08-10T18:47:17.786990",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.758053",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df=pd.read_csv(\"/kaggle/input/graduate-admissions/Admission_Predict_Ver1.1.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "79e20656",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.797326Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.797041Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.824943Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.824094Z"
+    },
+    "papermill": {
+     "duration": 0.034801,
+     "end_time": "2025-08-10T18:47:17.826516",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.791715",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>Serial No.</th>\n",
+       "      <th>GRE Score</th>\n",
+       "      <th>TOEFL Score</th>\n",
+       "      <th>University Rating</th>\n",
+       "      <th>SOP</th>\n",
+       "      <th>LOR</th>\n",
+       "      <th>CGPA</th>\n",
+       "      <th>Research</th>\n",
+       "      <th>Chance of Admit</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>1</td>\n",
+       "      <td>337</td>\n",
+       "      <td>118</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>9.65</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0.92</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>2</td>\n",
+       "      <td>324</td>\n",
+       "      <td>107</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>8.87</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0.76</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>3</td>\n",
+       "      <td>316</td>\n",
+       "      <td>104</td>\n",
+       "      <td>3</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>8.00</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0.72</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>4</td>\n",
+       "      <td>322</td>\n",
+       "      <td>110</td>\n",
+       "      <td>3</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>2.5</td>\n",
+       "      <td>8.67</td>\n",
+       "      <td>1</td>\n",
+       "      <td>0.80</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>5</td>\n",
+       "      <td>314</td>\n",
+       "      <td>103</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>8.21</td>\n",
+       "      <td>0</td>\n",
+       "      <td>0.65</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "   Serial No.  GRE Score  TOEFL Score  University Rating  SOP  LOR   CGPA  \\\n",
+       "0           1        337          118                  4  4.5   4.5  9.65   \n",
+       "1           2        324          107                  4  4.0   4.5  8.87   \n",
+       "2           3        316          104                  3  3.0   3.5  8.00   \n",
+       "3           4        322          110                  3  3.5   2.5  8.67   \n",
+       "4           5        314          103                  2  2.0   3.0  8.21   \n",
+       "\n",
+       "   Research  Chance of Admit   \n",
+       "0         1              0.92  \n",
+       "1         1              0.76  \n",
+       "2         1              0.72  \n",
+       "3         1              0.80  \n",
+       "4         0              0.65  "
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.head()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "f14be6e4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.837846Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.837535Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.861174Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.860048Z"
+    },
+    "papermill": {
+     "duration": 0.031413,
+     "end_time": "2025-08-10T18:47:17.862863",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.831450",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "RangeIndex: 500 entries, 0 to 499\n",
+      "Data columns (total 9 columns):\n",
+      " #   Column             Non-Null Count  Dtype  \n",
+      "---  ------             --------------  -----  \n",
+      " 0   Serial No.         500 non-null    int64  \n",
+      " 1   GRE Score          500 non-null    int64  \n",
+      " 2   TOEFL Score        500 non-null    int64  \n",
+      " 3   University Rating  500 non-null    int64  \n",
+      " 4   SOP                500 non-null    float64\n",
+      " 5   LOR                500 non-null    float64\n",
+      " 6   CGPA               500 non-null    float64\n",
+      " 7   Research           500 non-null    int64  \n",
+      " 8   Chance of Admit    500 non-null    float64\n",
+      "dtypes: float64(4), int64(5)\n",
+      "memory usage: 35.3 KB\n"
+     ]
+    }
+   ],
+   "source": [
+    "df.info()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "9b7b13b7",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.873964Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.873008Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.878963Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.878101Z"
+    },
+    "papermill": {
+     "duration": 0.012725,
+     "end_time": "2025-08-10T18:47:17.880294",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.867569",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(500, 9)"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "b7638749",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.891073Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.890784Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.896936Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.896139Z"
+    },
+    "papermill": {
+     "duration": 0.013238,
+     "end_time": "2025-08-10T18:47:17.898297",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.885059",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df.drop(columns=[\"Serial No.\"],inplace=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "2fd5ab11",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.909206Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.908898Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.913471Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.912694Z"
+    },
+    "papermill": {
+     "duration": 0.011585,
+     "end_time": "2025-08-10T18:47:17.914813",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.903228",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "X=df.iloc[:,0:-1]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "6dd3c54e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.926710Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.926004Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.930327Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.929575Z"
+    },
+    "papermill": {
+     "duration": 0.012208,
+     "end_time": "2025-08-10T18:47:17.931936",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.919728",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "y=df.iloc[:,-1]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "700d3f2e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.942609Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.942318Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.956500Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.955683Z"
+    },
+    "papermill": {
+     "duration": 0.02114,
+     "end_time": "2025-08-10T18:47:17.957889",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.936749",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>GRE Score</th>\n",
+       "      <th>TOEFL Score</th>\n",
+       "      <th>University Rating</th>\n",
+       "      <th>SOP</th>\n",
+       "      <th>LOR</th>\n",
+       "      <th>CGPA</th>\n",
+       "      <th>Research</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>337</td>\n",
+       "      <td>118</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>9.65</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>324</td>\n",
+       "      <td>107</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>8.87</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>316</td>\n",
+       "      <td>104</td>\n",
+       "      <td>3</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>8.00</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>322</td>\n",
+       "      <td>110</td>\n",
+       "      <td>3</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>2.5</td>\n",
+       "      <td>8.67</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>314</td>\n",
+       "      <td>103</td>\n",
+       "      <td>2</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>8.21</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>495</th>\n",
+       "      <td>332</td>\n",
+       "      <td>108</td>\n",
+       "      <td>5</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>9.02</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>496</th>\n",
+       "      <td>337</td>\n",
+       "      <td>117</td>\n",
+       "      <td>5</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>9.87</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>497</th>\n",
+       "      <td>330</td>\n",
+       "      <td>120</td>\n",
+       "      <td>5</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>9.56</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>498</th>\n",
+       "      <td>312</td>\n",
+       "      <td>103</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>8.43</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>499</th>\n",
+       "      <td>327</td>\n",
+       "      <td>113</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>9.04</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>500 rows × 7 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "     GRE Score  TOEFL Score  University Rating  SOP  LOR   CGPA  Research\n",
+       "0          337          118                  4  4.5   4.5  9.65         1\n",
+       "1          324          107                  4  4.0   4.5  8.87         1\n",
+       "2          316          104                  3  3.0   3.5  8.00         1\n",
+       "3          322          110                  3  3.5   2.5  8.67         1\n",
+       "4          314          103                  2  2.0   3.0  8.21         0\n",
+       "..         ...          ...                ...  ...   ...   ...       ...\n",
+       "495        332          108                  5  4.5   4.0  9.02         1\n",
+       "496        337          117                  5  5.0   5.0  9.87         1\n",
+       "497        330          120                  5  4.5   5.0  9.56         1\n",
+       "498        312          103                  4  4.0   5.0  8.43         0\n",
+       "499        327          113                  4  4.5   4.5  9.04         0\n",
+       "\n",
+       "[500 rows x 7 columns]"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "1a49ae82",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.969602Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.968822Z",
+     "iopub.status.idle": "2025-08-10T18:47:17.976263Z",
+     "shell.execute_reply": "2025-08-10T18:47:17.975403Z"
+    },
+    "papermill": {
+     "duration": 0.014704,
+     "end_time": "2025-08-10T18:47:17.977703",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.962999",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "0      0.92\n",
+       "1      0.76\n",
+       "2      0.72\n",
+       "3      0.80\n",
+       "4      0.65\n",
+       "       ... \n",
+       "495    0.87\n",
+       "496    0.96\n",
+       "497    0.93\n",
+       "498    0.73\n",
+       "499    0.84\n",
+       "Name: Chance of Admit , Length: 500, dtype: float64"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "52d07627",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:17.988877Z",
+     "iopub.status.busy": "2025-08-10T18:47:17.988610Z",
+     "iopub.status.idle": "2025-08-10T18:47:19.587037Z",
+     "shell.execute_reply": "2025-08-10T18:47:19.586072Z"
+    },
+    "papermill": {
+     "duration": 1.606052,
+     "end_time": "2025-08-10T18:47:19.588770",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:17.982718",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from sklearn.model_selection import train_test_split"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "27ef4cd0",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:19.601161Z",
+     "iopub.status.busy": "2025-08-10T18:47:19.600320Z",
+     "iopub.status.idle": "2025-08-10T18:47:19.606611Z",
+     "shell.execute_reply": "2025-08-10T18:47:19.605853Z"
+    },
+    "papermill": {
+     "duration": 0.013558,
+     "end_time": "2025-08-10T18:47:19.607895",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:19.594337",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "5136173e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:19.619175Z",
+     "iopub.status.busy": "2025-08-10T18:47:19.618882Z",
+     "iopub.status.idle": "2025-08-10T18:47:19.631842Z",
+     "shell.execute_reply": "2025-08-10T18:47:19.631004Z"
+    },
+    "papermill": {
+     "duration": 0.020478,
+     "end_time": "2025-08-10T18:47:19.633530",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:19.613052",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>GRE Score</th>\n",
+       "      <th>TOEFL Score</th>\n",
+       "      <th>University Rating</th>\n",
+       "      <th>SOP</th>\n",
+       "      <th>LOR</th>\n",
+       "      <th>CGPA</th>\n",
+       "      <th>Research</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>238</th>\n",
+       "      <td>310</td>\n",
+       "      <td>104</td>\n",
+       "      <td>3</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>8.37</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>438</th>\n",
+       "      <td>318</td>\n",
+       "      <td>110</td>\n",
+       "      <td>1</td>\n",
+       "      <td>2.5</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>8.54</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>475</th>\n",
+       "      <td>300</td>\n",
+       "      <td>101</td>\n",
+       "      <td>3</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>2.5</td>\n",
+       "      <td>7.88</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>58</th>\n",
+       "      <td>300</td>\n",
+       "      <td>99</td>\n",
+       "      <td>1</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>6.80</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>380</th>\n",
+       "      <td>322</td>\n",
+       "      <td>104</td>\n",
+       "      <td>3</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>8.84</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>255</th>\n",
+       "      <td>307</td>\n",
+       "      <td>110</td>\n",
+       "      <td>4</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>8.37</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>72</th>\n",
+       "      <td>321</td>\n",
+       "      <td>111</td>\n",
+       "      <td>5</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>5.0</td>\n",
+       "      <td>9.45</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>396</th>\n",
+       "      <td>325</td>\n",
+       "      <td>107</td>\n",
+       "      <td>3</td>\n",
+       "      <td>3.0</td>\n",
+       "      <td>3.5</td>\n",
+       "      <td>9.11</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>235</th>\n",
+       "      <td>326</td>\n",
+       "      <td>111</td>\n",
+       "      <td>5</td>\n",
+       "      <td>4.5</td>\n",
+       "      <td>4.0</td>\n",
+       "      <td>9.23</td>\n",
+       "      <td>1</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>37</th>\n",
+       "      <td>300</td>\n",
+       "      <td>105</td>\n",
+       "      <td>1</td>\n",
+       "      <td>1.0</td>\n",
+       "      <td>2.0</td>\n",
+       "      <td>7.80</td>\n",
+       "      <td>0</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>400 rows × 7 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "     GRE Score  TOEFL Score  University Rating  SOP  LOR   CGPA  Research\n",
+       "238        310          104                  3  2.0   3.5  8.37         0\n",
+       "438        318          110                  1  2.5   3.5  8.54         1\n",
+       "475        300          101                  3  3.5   2.5  7.88         0\n",
+       "58         300           99                  1  3.0   2.0  6.80         1\n",
+       "380        322          104                  3  3.5   4.0  8.84         1\n",
+       "..         ...          ...                ...  ...   ...   ...       ...\n",
+       "255        307          110                  4  4.0   4.5  8.37         0\n",
+       "72         321          111                  5  5.0   5.0  9.45         1\n",
+       "396        325          107                  3  3.0   3.5  9.11         1\n",
+       "235        326          111                  5  4.5   4.0  9.23         1\n",
+       "37         300          105                  1  1.0   2.0  7.80         0\n",
+       "\n",
+       "[400 rows x 7 columns]"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_train"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "2702c0e4",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:19.645729Z",
+     "iopub.status.busy": "2025-08-10T18:47:19.645033Z",
+     "iopub.status.idle": "2025-08-10T18:47:19.651849Z",
+     "shell.execute_reply": "2025-08-10T18:47:19.651168Z"
+    },
+    "papermill": {
+     "duration": 0.01425,
+     "end_time": "2025-08-10T18:47:19.653206",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:19.638956",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "238    0.70\n",
+       "438    0.67\n",
+       "475    0.59\n",
+       "58     0.36\n",
+       "380    0.78\n",
+       "       ... \n",
+       "255    0.79\n",
+       "72     0.93\n",
+       "396    0.84\n",
+       "235    0.88\n",
+       "37     0.58\n",
+       "Name: Chance of Admit , Length: 400, dtype: float64"
+      ]
+     },
+     "execution_count": 14,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y_train"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "8132afd2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:19.665046Z",
+     "iopub.status.busy": "2025-08-10T18:47:19.664527Z",
+     "iopub.status.idle": "2025-08-10T18:47:19.668570Z",
+     "shell.execute_reply": "2025-08-10T18:47:19.667795Z"
+    },
+    "papermill": {
+     "duration": 0.011242,
+     "end_time": "2025-08-10T18:47:19.669855",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:19.658613",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from sklearn.preprocessing import MinMaxScaler"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "f2605c18",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:19.682255Z",
+     "iopub.status.busy": "2025-08-10T18:47:19.681534Z",
+     "iopub.status.idle": "2025-08-10T18:47:19.690046Z",
+     "shell.execute_reply": "2025-08-10T18:47:19.689179Z"
+    },
+    "papermill": {
+     "duration": 0.016213,
+     "end_time": "2025-08-10T18:47:19.691504",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:19.675291",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "scaler=MinMaxScaler()\n",
+    "X_train_scaled=scaler.fit_transform(X_train)\n",
+    "X_test_scaled=scaler.transform(X_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "14d0ec82",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:19.704281Z",
+     "iopub.status.busy": "2025-08-10T18:47:19.703609Z",
+     "iopub.status.idle": "2025-08-10T18:47:35.447721Z",
+     "shell.execute_reply": "2025-08-10T18:47:35.446785Z"
+    },
+    "papermill": {
+     "duration": 15.751975,
+     "end_time": "2025-08-10T18:47:35.449408",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:19.697433",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "2025-08-10 18:47:21.476487: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:477] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered\n",
+      "WARNING: All log messages before absl::InitializeLog() is called are written to STDERR\n",
+      "E0000 00:00:1754851641.694941      13 cuda_dnn.cc:8310] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered\n",
+      "E0000 00:00:1754851641.761562      13 cuda_blas.cc:1418] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered\n"
+     ]
+    }
+   ],
+   "source": [
+    "import tensorflow\n",
+    "from tensorflow import keras\n",
+    "from tensorflow.keras import Sequential\n",
+    "from tensorflow.keras.layers import Dense"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "7153543a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:35.461989Z",
+     "iopub.status.busy": "2025-08-10T18:47:35.461288Z",
+     "iopub.status.idle": "2025-08-10T18:47:35.554402Z",
+     "shell.execute_reply": "2025-08-10T18:47:35.553424Z"
+    },
+    "papermill": {
+     "duration": 0.100897,
+     "end_time": "2025-08-10T18:47:35.555984",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:35.455087",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/usr/local/lib/python3.11/dist-packages/keras/src/layers/core/dense.py:87: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.\n",
+      "  super().__init__(activity_regularizer=activity_regularizer, **kwargs)\n",
+      "2025-08-10 18:47:35.474441: E external/local_xla/xla/stream_executor/cuda/cuda_driver.cc:152] failed call to cuInit: INTERNAL: CUDA error: Failed call to cuInit: UNKNOWN ERROR (303)\n"
+     ]
+    }
+   ],
+   "source": [
+    "model=Sequential()\n",
+    "model.add(Dense(7,activation=\"relu\",input_dim=7))\n",
+    "model.add(Dense(7,activation=\"relu\"))\n",
+    "model.add(Dense(1,activation=\"linear\"))\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "079ca80f",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:35.568447Z",
+     "iopub.status.busy": "2025-08-10T18:47:35.567813Z",
+     "iopub.status.idle": "2025-08-10T18:47:35.584072Z",
+     "shell.execute_reply": "2025-08-10T18:47:35.583326Z"
+    },
+    "papermill": {
+     "duration": 0.024152,
+     "end_time": "2025-08-10T18:47:35.585705",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:35.561553",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\">Model: \"sequential\"</span>\n",
+       "</pre>\n"
+      ],
+      "text/plain": [
+       "\u001b[1mModel: \"sequential\"\u001b[0m\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n",
+       "┃<span style=\"font-weight: bold\"> Layer (type)                    </span>┃<span style=\"font-weight: bold\"> Output Shape           </span>┃<span style=\"font-weight: bold\">       Param # </span>┃\n",
+       "┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n",
+       "│ dense (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                   │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">7</span>)              │            <span style=\"color: #00af00; text-decoration-color: #00af00\">56</span> │\n",
+       "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+       "│ dense_1 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                 │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">7</span>)              │            <span style=\"color: #00af00; text-decoration-color: #00af00\">56</span> │\n",
+       "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+       "│ dense_2 (<span style=\"color: #0087ff; text-decoration-color: #0087ff\">Dense</span>)                 │ (<span style=\"color: #00d7ff; text-decoration-color: #00d7ff\">None</span>, <span style=\"color: #00af00; text-decoration-color: #00af00\">1</span>)              │             <span style=\"color: #00af00; text-decoration-color: #00af00\">8</span> │\n",
+       "└─────────────────────────────────┴────────────────────────┴───────────────┘\n",
+       "</pre>\n"
+      ],
+      "text/plain": [
+       "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓\n",
+       "┃\u001b[1m \u001b[0m\u001b[1mLayer (type)                   \u001b[0m\u001b[1m \u001b[0m┃\u001b[1m \u001b[0m\u001b[1mOutput Shape          \u001b[0m\u001b[1m \u001b[0m┃\u001b[1m \u001b[0m\u001b[1m      Param #\u001b[0m\u001b[1m \u001b[0m┃\n",
+       "┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩\n",
+       "│ dense (\u001b[38;5;33mDense\u001b[0m)                   │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m7\u001b[0m)              │            \u001b[38;5;34m56\u001b[0m │\n",
+       "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+       "│ dense_1 (\u001b[38;5;33mDense\u001b[0m)                 │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m7\u001b[0m)              │            \u001b[38;5;34m56\u001b[0m │\n",
+       "├─────────────────────────────────┼────────────────────────┼───────────────┤\n",
+       "│ dense_2 (\u001b[38;5;33mDense\u001b[0m)                 │ (\u001b[38;5;45mNone\u001b[0m, \u001b[38;5;34m1\u001b[0m)              │             \u001b[38;5;34m8\u001b[0m │\n",
+       "└─────────────────────────────────┴────────────────────────┴───────────────┘\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Total params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">120</span> (480.00 B)\n",
+       "</pre>\n"
+      ],
+      "text/plain": [
+       "\u001b[1m Total params: \u001b[0m\u001b[38;5;34m120\u001b[0m (480.00 B)\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Trainable params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">120</span> (480.00 B)\n",
+       "</pre>\n"
+      ],
+      "text/plain": [
+       "\u001b[1m Trainable params: \u001b[0m\u001b[38;5;34m120\u001b[0m (480.00 B)\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    },
+    {
+     "data": {
+      "text/html": [
+       "<pre style=\"white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><span style=\"font-weight: bold\"> Non-trainable params: </span><span style=\"color: #00af00; text-decoration-color: #00af00\">0</span> (0.00 B)\n",
+       "</pre>\n"
+      ],
+      "text/plain": [
+       "\u001b[1m Non-trainable params: \u001b[0m\u001b[38;5;34m0\u001b[0m (0.00 B)\n"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "model.summary()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "id": "4897ef34",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:35.599165Z",
+     "iopub.status.busy": "2025-08-10T18:47:35.598827Z",
+     "iopub.status.idle": "2025-08-10T18:47:35.612817Z",
+     "shell.execute_reply": "2025-08-10T18:47:35.611942Z"
+    },
+    "papermill": {
+     "duration": 0.022701,
+     "end_time": "2025-08-10T18:47:35.614677",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:35.591976",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "model.compile(loss=\"mean_squared_error\",optimizer=\"Adam\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "id": "3caa381d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:35.628302Z",
+     "iopub.status.busy": "2025-08-10T18:47:35.627969Z",
+     "iopub.status.idle": "2025-08-10T18:47:40.230921Z",
+     "shell.execute_reply": "2025-08-10T18:47:40.230148Z"
+    },
+    "papermill": {
+     "duration": 4.611496,
+     "end_time": "2025-08-10T18:47:40.232518",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:35.621022",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Epoch 1/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m2s\u001b[0m 29ms/step - loss: 0.3057 - val_loss: 0.2439\n",
+      "Epoch 2/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.1949 - val_loss: 0.1361\n",
+      "Epoch 3/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 10ms/step - loss: 0.0972 - val_loss: 0.0677\n",
+      "Epoch 4/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0545 - val_loss: 0.0388\n",
+      "Epoch 5/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0278 - val_loss: 0.0350\n",
+      "Epoch 6/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0318 - val_loss: 0.0345\n",
+      "Epoch 7/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 10ms/step - loss: 0.0303 - val_loss: 0.0321\n",
+      "Epoch 8/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0287 - val_loss: 0.0300\n",
+      "Epoch 9/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0269 - val_loss: 0.0287\n",
+      "Epoch 10/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 8ms/step - loss: 0.0229 - val_loss: 0.0276\n",
+      "Epoch 11/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0248 - val_loss: 0.0263\n",
+      "Epoch 12/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0218 - val_loss: 0.0252\n",
+      "Epoch 13/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 8ms/step - loss: 0.0196 - val_loss: 0.0241\n",
+      "Epoch 14/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0216 - val_loss: 0.0230\n",
+      "Epoch 15/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0176 - val_loss: 0.0223\n",
+      "Epoch 16/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 10ms/step - loss: 0.0170 - val_loss: 0.0213\n",
+      "Epoch 17/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0200 - val_loss: 0.0205\n",
+      "Epoch 18/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 8ms/step - loss: 0.0193 - val_loss: 0.0197\n",
+      "Epoch 19/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 8ms/step - loss: 0.0157 - val_loss: 0.0190\n",
+      "Epoch 20/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 8ms/step - loss: 0.0163 - val_loss: 0.0182\n",
+      "Epoch 21/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0143 - val_loss: 0.0173\n",
+      "Epoch 22/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0141 - val_loss: 0.0165\n",
+      "Epoch 23/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 8ms/step - loss: 0.0136 - val_loss: 0.0157\n",
+      "Epoch 24/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 8ms/step - loss: 0.0122 - val_loss: 0.0150\n",
+      "Epoch 25/25\n",
+      "\u001b[1m10/10\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 9ms/step - loss: 0.0122 - val_loss: 0.0144\n"
+     ]
+    }
+   ],
+   "source": [
+    "history=model.fit(X_train_scaled,y_train,epochs=25,validation_split=0.2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "id": "9d524377",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:40.253261Z",
+     "iopub.status.busy": "2025-08-10T18:47:40.252887Z",
+     "iopub.status.idle": "2025-08-10T18:47:40.447572Z",
+     "shell.execute_reply": "2025-08-10T18:47:40.446600Z"
+    },
+    "papermill": {
+     "duration": 0.207294,
+     "end_time": "2025-08-10T18:47:40.449546",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:40.242252",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "\u001b[1m4/4\u001b[0m \u001b[32m━━━━━━━━━━━━━━━━━━━━\u001b[0m\u001b[37m\u001b[0m \u001b[1m0s\u001b[0m 20ms/step\n"
+     ]
+    }
+   ],
+   "source": [
+    "y_pred=model.predict(X_test_scaled)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "id": "d48e5122",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:40.471424Z",
+     "iopub.status.busy": "2025-08-10T18:47:40.470967Z",
+     "iopub.status.idle": "2025-08-10T18:47:40.480431Z",
+     "shell.execute_reply": "2025-08-10T18:47:40.479314Z"
+    },
+    "papermill": {
+     "duration": 0.022778,
+     "end_time": "2025-08-10T18:47:40.482330",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:40.459552",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[0.48293304],\n",
+       "       [0.71395856],\n",
+       "       [0.891782  ],\n",
+       "       [0.7309539 ],\n",
+       "       [0.8057688 ],\n",
+       "       [0.7085704 ],\n",
+       "       [0.7723445 ],\n",
+       "       [0.6824597 ],\n",
+       "       [0.7917264 ],\n",
+       "       [0.5379038 ],\n",
+       "       [0.5418278 ],\n",
+       "       [0.6521506 ],\n",
+       "       [0.80107665],\n",
+       "       [0.60278744],\n",
+       "       [0.77274746],\n",
+       "       [0.9890192 ],\n",
+       "       [0.6901725 ],\n",
+       "       [0.7210824 ],\n",
+       "       [0.886757  ],\n",
+       "       [0.5229158 ],\n",
+       "       [0.58450633],\n",
+       "       [0.916663  ],\n",
+       "       [0.8435708 ],\n",
+       "       [0.79235774],\n",
+       "       [0.74686205],\n",
+       "       [0.3931486 ],\n",
+       "       [0.99659795],\n",
+       "       [0.6676604 ],\n",
+       "       [0.8774369 ],\n",
+       "       [0.6933914 ],\n",
+       "       [0.6722065 ],\n",
+       "       [0.8174756 ],\n",
+       "       [0.5812609 ],\n",
+       "       [0.8988149 ],\n",
+       "       [0.2088647 ],\n",
+       "       [0.8066039 ],\n",
+       "       [0.43416312],\n",
+       "       [0.48032987],\n",
+       "       [0.48361787],\n",
+       "       [0.8926186 ],\n",
+       "       [0.5325291 ],\n",
+       "       [0.65576506],\n",
+       "       [0.94901204],\n",
+       "       [0.9588291 ],\n",
+       "       [0.7251012 ],\n",
+       "       [0.45639813],\n",
+       "       [0.44274855],\n",
+       "       [0.5833279 ],\n",
+       "       [0.6198387 ],\n",
+       "       [0.5380142 ],\n",
+       "       [0.81035703],\n",
+       "       [0.90911573],\n",
+       "       [0.8478302 ],\n",
+       "       [0.6531083 ],\n",
+       "       [0.7887945 ],\n",
+       "       [0.66682214],\n",
+       "       [0.82536256],\n",
+       "       [0.4796369 ],\n",
+       "       [0.6087323 ],\n",
+       "       [0.6876114 ],\n",
+       "       [0.29145747],\n",
+       "       [0.79303193],\n",
+       "       [0.7230965 ],\n",
+       "       [0.80847025],\n",
+       "       [0.979261  ],\n",
+       "       [0.5202723 ],\n",
+       "       [0.7230445 ],\n",
+       "       [0.7770984 ],\n",
+       "       [0.92392695],\n",
+       "       [0.60642684],\n",
+       "       [0.49427933],\n",
+       "       [0.56762075],\n",
+       "       [0.81497866],\n",
+       "       [0.32192746],\n",
+       "       [0.9096657 ],\n",
+       "       [0.69515884],\n",
+       "       [0.8192147 ],\n",
+       "       [1.0161148 ],\n",
+       "       [0.71269315],\n",
+       "       [0.7976524 ],\n",
+       "       [0.8225887 ],\n",
+       "       [0.7269823 ],\n",
+       "       [0.8740142 ],\n",
+       "       [0.7889448 ],\n",
+       "       [0.9483949 ],\n",
+       "       [0.6213744 ],\n",
+       "       [0.94594103],\n",
+       "       [0.86794466],\n",
+       "       [0.8769846 ],\n",
+       "       [0.5342952 ],\n",
+       "       [0.6268596 ],\n",
+       "       [0.8282546 ],\n",
+       "       [0.49310887],\n",
+       "       [0.68532723],\n",
+       "       [0.7906249 ],\n",
+       "       [0.8323361 ],\n",
+       "       [0.84164226],\n",
+       "       [0.6308205 ],\n",
+       "       [0.6908173 ],\n",
+       "       [0.8206305 ]], dtype=float32)"
+      ]
+     },
+     "execution_count": 23,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y_pred"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "id": "c1bae68d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:40.507187Z",
+     "iopub.status.busy": "2025-08-10T18:47:40.506785Z",
+     "iopub.status.idle": "2025-08-10T18:47:40.512512Z",
+     "shell.execute_reply": "2025-08-10T18:47:40.511479Z"
+    },
+    "papermill": {
+     "duration": 0.018837,
+     "end_time": "2025-08-10T18:47:40.514252",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:40.495415",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "id": "6ff51ed8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-08-10T18:47:40.538165Z",
+     "iopub.status.busy": "2025-08-10T18:47:40.537849Z",
+     "iopub.status.idle": "2025-08-10T18:47:40.805296Z",
+     "shell.execute_reply": "2025-08-10T18:47:40.804149Z"
+    },
+    "papermill": {
+     "duration": 0.279593,
+     "end_time": "2025-08-10T18:47:40.806999",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:40.527406",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "[<matplotlib.lines.Line2D at 0x7d915a225950>]"
+      ]
+     },
+     "execution_count": 25,
+     "metadata": {},
+     "output_type": "execute_result"
+    },
+    {
+     "data": {
+      "image/png": "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Q0uXLlVzc7NWrVolKTywt7m5Wffdd9+on1mxYoWam5v14IMPxva9/fbbWrFihSRp9uzZqqioUHNzcyy0eL1e7d69W/fcc8+Y6qqqqtKxY8dUWFgoi8WSyFe6JK/Xq+rqah07doxBwynEdTcH190cXHdzcN3NMfK6FxYWqqenR1VVVeM6V8LdSY2NjVq/fr2WLVum5cuXa9u2bfL5fNqwYYMkad26dZo5c6a2bNkiSXrggQd0ww036Ic//KG+/OUv69VXX9Uf/vAH/fjHP5YkWSwWPfjgg/rBD36gK664QrNnz9ajjz6qqqqqWFC6FKvVqssuuyzRr5KQoqIifuQm4Lqbg+tuDq67Obju5ohe9/G0wEQlHGJWr16t06dPa9OmTfJ4PFqyZImamppiA3NbW1tltQ6PF/785z+vl19+Wf/4j/+o733ve7riiiv0xhtv6Jprrokd853vfEc+n0933323urq6dN1116mpqUkul2vcXwwAAGS3hNeJmWpYg8YcXHdzcN3NwXU3B9fdHMm87tw76RKcTqc2b94cN5AYk4/rbg6uuzm47ubgupsjmdedlhgAAJCRaIkBAAAZiRADAAAyEiEGAABkJEIMAADISISYS9i+fbtqa2vlcrlUV1enPXv2mF1SVnvsscdksVjitvnz55tdVtb5zW9+o1tuuUVVVVWyWCx644034t43DEObNm1SZWWlcnNzVV9fr4MHD5pTbBa51HW/4447zvv9r1y50pxis8SWLVt07bXXqrCwUGVlZVq1apUOHDgQd8zAwIDuvfdeTZ8+XQUFBbr99tvPu10OEjOW6/7Xf/3X5/3e//7v/z6hv0OIuYidO3eqsbFRmzdv1r59+7R48WI1NDSovb3d7NKy2tVXX61Tp07Ftt/+9rdml5R1fD6fFi9erO3bt4/6/lNPPaVnn31WO3bs0O7du5Wfn6+GhgYNDAykuNLscqnrLkkrV66M+/2/8sorKaww+7z77ru699579d577+ntt99WIBDQTTfdJJ/PFzvmW9/6ln71q1/ptdde07vvvquTJ0/qq1/9qolVZ76xXHdJuuuuu+J+70899VRif8jABS1fvty49957Y6+DwaBRVVVlbNmyxcSqstvmzZuNxYsXm13GlCLJeP3112OvQ6GQUVFRYTz99NOxfV1dXYbT6TReeeUVEyrMTuded8MwjPXr1xu33XabKfVMFe3t7YYk49133zUMI/zbttvtxmuvvRY75uOPPzYkGS0tLWaVmXXOve6GYRg33HCD8cADD0zovLTEXIDf79fevXtVX18f22e1WlVfX6+WlhYTK8t+Bw8eVFVVlebMmaOvf/3ram1tNbukKeXIkSPyeDxxv3232626ujp++ymwa9culZWVad68ebrnnnvU2dlpdklZpbu7W5JUUlIiSdq7d68CgUDc733+/PmaNWsWv/ckOve6R/385z9XaWmprrnmGm3cuFF9fX0JnTfheydNFR0dHQoGg7F7QkWVl5frk08+Mamq7FdXV6cXX3xR8+bN06lTp/T9739f119/vT788EMVFhaaXd6U4PF4JGnU3370PUyOlStX6qtf/apmz56tw4cP63vf+55uvvlmtbS0yGazmV1exguFQnrwwQf1V3/1V7H793k8HjkcDk2bNi3uWH7vyTPadZekv/u7v1NNTY2qqqr0wQcf6JFHHtGBAwf0r//6r2M+NyEGaeXmm2+OPV+0aJHq6upUU1OjX/ziF7rzzjtNrAyYfGvWrIk9X7hwoRYtWqTLL79cu3bt0o033mhiZdnh3nvv1Ycffsg4uxS70HW/++67Y88XLlyoyspK3XjjjTp8+LAuv/zyMZ2b7qQLKC0tlc1mO2+EeltbmyoqKkyqauqZNm2arrzySh06dMjsUqaM6O+b37755syZo9LSUn7/SXDffffpzTff1DvvvKPLLrsstr+iokJ+v19dXV1xx/N7T44LXffR1NXVSVJCv3dCzAU4HA4tXbpUzc3NsX2hUEjNzc1asWKFiZVNLb29vTp8+LAqKyvNLmXKmD17tioqKuJ++16vV7t37+a3n2LHjx9XZ2cnv/8JMAxD9913n15//XX9x3/8h2bPnh33/tKlS2W32+N+7wcOHFBrayu/9wm41HUfzf79+yUpod873UkX0djYqPXr12vZsmVavny5tm3bJp/Ppw0bNphdWtZ66KGHdMstt6impkYnT57U5s2bZbPZtHbtWrNLyyq9vb1x/9s5cuSI9u/fr5KSEs2aNUsPPvigfvCDH+iKK67Q7Nmz9eijj6qqqkqrVq0yr+gscLHrXlJSou9///u6/fbbVVFRocOHD+s73/mO5s6dq4aGBhOrzmz33nuvXn75Zf3bv/2bCgsLY+Nc3G63cnNz5Xa7deedd6qxsVElJSUqKirS/fffrxUrVuhzn/ucydVnrktd98OHD+vll1/Wl770JU2fPl0ffPCBvvWtb+kLX/iCFi1aNPY/NKG5TVPAP//zPxuzZs0yHA6HsXz5cuO9994zu6Sstnr1aqOystJwOBzGzJkzjdWrVxuHDh0yu6ys88477xiSztvWr19vGEZ4mvWjjz5qlJeXG06n07jxxhuNAwcOmFt0FrjYde/r6zNuuukmY8aMGYbdbjdqamqMu+66y/B4PGaXndFGu96SjJ/+9KexY/r7+41vfvObRnFxsZGXl2f8zd/8jXHq1Cnzis4Cl7rura2txhe+8AWjpKTEcDqdxty5c42HH37Y6O7uTujvWCJ/DAAAIKMwJgYAAGQkQgwAAMhIhBgAAJCRCDEAACAjEWIAAEBGIsQAAICMRIgBAAAZiRADAAAyEiEGAABkJEIMAADISIQYAACQkQgxAAAgI/3/GWOC9O/WLPgAAAAASUVORK5CYII=\n",
+      "text/plain": [
+       "<Figure size 640x480 with 1 Axes>"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "plt.plot(history.history[\"loss\"])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4aaaf0dd",
+   "metadata": {
+    "papermill": {
+     "duration": 0.010469,
+     "end_time": "2025-08-10T18:47:40.827888",
+     "exception": false,
+     "start_time": "2025-08-10T18:47:40.817419",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 14872,
+     "sourceId": 228180,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "dockerImageVersionId": 31089,
+   "isGpuEnabled": false,
+   "isInternetEnabled": false,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.13"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 33.164465,
+   "end_time": "2025-08-10T18:47:44.408475",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2025-08-10T18:47:11.244010",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
