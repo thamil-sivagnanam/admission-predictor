@@ -81,9 +81,18 @@ Note: Higher R² and lower error values indicate better model performance.
 * Matplotlib / Seaborn
 * Jupyter Notebook
 
+📷 Application Preview
+
+![App Screenshot](assets/app.png)
+
+## 🌐 Live Demo
+
+👉 Try the deployed app here:  
+[![Open App](https://admission-predictor-22.streamlit.app/)
+
 ⸻
 
-##🚀 How to Run the Project
+🚀 How to Run the Project
 
 ### 1. Clone the repository
 ```
@@ -97,7 +106,7 @@ pip install -r requirements.txt
 ```
 jupyter notebook
 ```
-##🔮 How to Use the Model
+🔮 How to Use the Model
 
 You can input student details like:
 ```
@@ -118,7 +127,7 @@ Chance of Admission: 0.82
 
 ⸻
 
-##📉 Known Issues / Improvements
+📉 Known Issues / Improvements
 
 * Model performance depends on dataset size
 * Feature scaling can further improve accuracy
@@ -126,7 +135,7 @@ Chance of Admission: 0.82
 
 ⸻
 
-##🚀 Future Improvements
+🚀 Future Improvements
 
 * Deploy using Streamlit web app
 * Add university-wise prediction system
@@ -135,7 +144,7 @@ Chance of Admission: 0.82
 
 ⸻
 
-##👨‍💻 Author
+👨‍💻 Author
 
 Thamil
 B.Tech AI & ML Student
@@ -143,6 +152,7 @@ Interested in Machine Learning, Deep Learning, and Study Abroad Applications
 
 ⸻
 
-##📜 License
+📜 License
 
 This project is open-source and free to use for educational purposes.
+
