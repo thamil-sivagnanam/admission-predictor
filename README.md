@@ -87,8 +87,7 @@ Note: Higher R² and lower error values indicate better model performance.
 
 ## 🌐 Live Demo
 
-👉 Try the deployed app here:  
-[![Open App](https://admission-predictor-22.streamlit.app/)
+👉 Try the deployed app here: (https://admission-predictor-22.streamlit.app/)
 
 ⸻
 
