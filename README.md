@@ -1,6 +1,6 @@
-#🎓 Admission Predictor (Machine Learning Project)
+🎓 Admission Predictor (Machine Learning Project)
 
-##📌 Overview
+📌 Overview
 
 This project predicts the probability of a student being admitted to a university based on academic and profile-related features. It uses supervised machine learning regression techniques to estimate admission chances.
 
@@ -8,7 +8,7 @@ The model helps students understand their chances and improve weak areas before 
 
 ⸻
 
-##🎯 Objective
+🎯 Objective
 
 To build a predictive model that estimates Chance of Admission using features like:
 
@@ -22,7 +22,7 @@ To build a predictive model that estimates Chance of Admission using features li
 
 ⸻
 
-##🧠 Machine Learning Approach
+🧠 Machine Learning Approach
 
 * Problem Type: Regression
 * Target Variable: Chance of Admission (0 to 1)
@@ -36,7 +36,7 @@ To build a predictive model that estimates Chance of Admission using features li
 
 ⸻
 
-##📊 Dataset
+📊 Dataset
 
 * Source: Kaggle – Graduate Admission Dataset
 * Records: ~400 student profiles
@@ -51,7 +51,7 @@ To build a predictive model that estimates Chance of Admission using features li
 
 ⸻
 
-##⚙️ Project Workflow
+⚙️ Project Workflow
 
 1. Data Collection
 2. Data Cleaning & Preprocessing
@@ -63,7 +63,7 @@ To build a predictive model that estimates Chance of Admission using features li
 
 ⸻
 
-##📈 Model Performance
+📈 Model Performance
 
 * R² Score: [0.9028](Linear Regression-best model)
 * MAE: [0.0234]
@@ -73,7 +73,7 @@ Note: Higher R² and lower error values indicate better model performance.
 
 ⸻
 
-##🛠️ Tech Stack
+🛠️ Tech Stack
 
 * Python 🐍
 * Pandas & NumPy
@@ -85,7 +85,7 @@ Note: Higher R² and lower error values indicate better model performance.
 
 ![App Screenshot](assets/app.png)
 
-## 🌐 Live Demo
+🌐 Live Demo
 
 👉 Try the deployed app here: (https://admission-predictor-22.streamlit.app/)
 
@@ -117,7 +117,7 @@ Output:
 ```
 Chance of Admission: 0.82
 ```
-##📌 Key Features
+📌 Key Features
 
 * Simple and interpretable ML model
 * Real-world education dataset
