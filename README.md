@@ -1,157 +1,104 @@
-🎓 Admission Predictor (Machine Learning Project)
+# Graduate Admission Predictor
 
-📌 Overview
+A machine learning project that estimates graduate admission chances using students' academic profiles and application-related factors.
 
-This project predicts the probability of a student being admitted to a university based on academic and profile-related features. It uses supervised machine learning regression techniques to estimate admission chances.
+**[Live Demo](https://admission-predictor-22.streamlit.app/) · [GitHub Repository](https://github.com/thamil-sivagnanam/admission-predictor)**
 
-The model helps students understand their chances and improve weak areas before applying for higher studies.
+## About the Project
 
-⸻
+This project explores how regression models can be used to estimate a student's chance of admission based on academic and profile-related information. I worked through the machine learning workflow, from exploring the dataset and comparing models to saving the selected model and building an interactive Streamlit application.
 
-🎯 Objective
+## Dataset
 
-To build a predictive model that estimates Chance of Admission using features like:
+- **Source:** Graduate Admission Dataset (Kaggle)
+- **Records:** Approximately 400 student profiles
+- **Target:** Chance of Admit (0 to 1)
+- **Input features:** GRE Score, TOEFL Score, University Rating, SOP, LOR, GPA, and Research Experience
 
-* GRE Score
-* TOEFL Score
-* University Rating
-* SOP Strength
-* LOR Strength
-* CGPA
-* Research Experience
+## Workflow
 
-⸻
+1. Data exploration and preprocessing
+2. Exploratory data analysis
+3. Feature analysis
+4. Training and comparing regression models
+5. Model evaluation
+6. Saving the selected model
+7. Building the Streamlit prediction interface
 
-🧠 Machine Learning Approach
+## Model Comparison
 
-* Problem Type: Regression
-* Target Variable: Chance of Admission (0 to 1)
-* Algorithms Used:
-    * Linear Regression
-    * Ridge Regression (optional improvement)
-* Evaluation Metrics:
-    * R² Score
-    * Mean Absolute Error (MAE)
-    * Root Mean Squared Error (RMSE)
+I trained and compared three regression models using an 80/20 train-test split:
 
-⸻
+| Model | R² Score | MAE |
+|---|---:|---:|
+| Linear Regression | 0.9028 | 0.02342 |
+| Random Forest Regressor | 0.8520 | 0.02893 |
+| XGBoost Regressor | 0.8373 | 0.02966 |
 
-📊 Dataset
+Linear Regression achieved the highest R² score and the lowest MAE among the three models in this experiment. These are test-set results from this dataset split; they should not be interpreted as a guarantee of real-world admission accuracy.
 
-* Source: Kaggle – Graduate Admission Dataset
-* Records: ~400 student profiles
-* Features:
-    * GRE Score (out of 340)
-    * TOEFL Score (out of 120)
-    * University Rating (1–5)
-    * SOP Strength (1–5)
-    * LOR Strength (1–5)
-    * CGPA (out of 10)
-    * Research (0 or 1)
+### Feature Analysis
 
-⸻
+I also compared Random Forest performance with and without the Research feature. In that experiment, the R² score decreased from approximately 0.8520 to 0.2100 when the feature was removed, indicating that it was influential in that model's predictions.
 
-⚙️ Project Workflow
+## Application
 
-1. Data Collection
-2. Data Cleaning & Preprocessing
-3. Exploratory Data Analysis (EDA)
-4. Feature Selection
-5. Model Training
-6. Model Evaluation
-7. Prediction System Development
+The Streamlit application accepts seven inputs:
 
-⸻
+- GRE Score
+- TOEFL Score
+- University Rating
+- SOP
+- LOR
+- GPA
+- Research Experience
 
-📈 Model Performance
+It loads the saved Linear Regression model and displays an estimated admission chance with a simple high, moderate, or low category.
 
-* R² Score: [0.9028](Linear Regression-best model)
-* MAE: [0.0234]
-* RMSE: [~0.035]
+![Application screenshot](assets/app.png)
 
-Note: Higher R² and lower error values indicate better model performance.
+**[Try the Live Application](https://admission-predictor-22.streamlit.app/)**
 
-⸻
+## Tech Stack
 
-🛠️ Tech Stack
+- Python
+- Pandas
+- NumPy
+- Scikit-learn
+- XGBoost
+- Streamlit
+- Jupyter Notebook
 
-* Python 🐍
-* Pandas & NumPy
-* Scikit-learn
-* Matplotlib / Seaborn
-* Jupyter Notebook
+## Run Locally
 
-📷 Application Preview
+Clone the repository:
 
-![App Screenshot](assets/app.png)
-
-🌐 Live Demo
-
-👉 Try the deployed app here: (https://admission-predictor-22.streamlit.app/)
-
-⸻
-
-🚀 How to Run the Project
-
-### 1. Clone the repository
+```bash
+git clone https://github.com/thamil-sivagnanam/admission-predictor.git
+cd admission-predictor
 ```
-gh repo clone thamil-sivagnanam/admission-predictor
-```
-### 2. Install dependencies
-```
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
-### 3. Run Jupyter Notebook
+
+Run the application from the repository root:
+
+```bash
+streamlit run app/app.py
 ```
-jupyter notebook
-```
-🔮 How to Use the Model
 
-You can input student details like:
-```
-sample_input = [[320, 110, 4, 4.5, 4.0, 9.0, 1]]
-prediction = model.predict(sample_input)
-print(prediction)
-```
-Output:
-```
-Chance of Admission: 0.82
-```
-📌 Key Features
+The application expects the trained model at `model/model.pkl`. The repository also includes the notebook at `notebook/eda_model.ipynb` and the dataset at `data/admission.csv`.
 
-* Simple and interpretable ML model
-* Real-world education dataset
-* Helps students evaluate admission chances
-* Easily extendable for deployment (Flask / Streamlit)
+## Author
 
-⸻
+**Thamil Sivagnanam**  
+MSc Artificial Intelligence student at Brandenburg University of Technology (BTU Cottbus).
 
-📉 Known Issues / Improvements
+[GitHub Profile](https://github.com/thamil-sivagnanam)
 
-* Model performance depends on dataset size
-* Feature scaling can further improve accuracy
-* Can be upgraded to ensemble models (Random Forest, XGBoost)
+---
 
-⸻
-
-🚀 Future Improvements
-
-* Deploy using Streamlit web app
-* Add university-wise prediction system
-* Improve accuracy with advanced ML models
-* Add real-time input interface
-
-⸻
-
-👨‍💻 Author
-
-Thamil
-B.Tech AI & ML Student
-Interested in Machine Learning, Deep Learning, and Study Abroad Applications
-
-⸻
-
-📜 License
-
-This project is open-source and free to use for educational purposes.
-
+This project was developed for learning and educational purposes. The prediction is an estimate based on the dataset and model, not an actual university admission decision.
