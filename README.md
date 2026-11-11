@@ -95,7 +95,7 @@ Note: Higher R² and lower error values indicate better model performance.
 
 ### 1. Clone the repository
 ```
-gh repo clone hawkthamil/admission-predictor
+gh repo clone thamil-sivagnanam/admission-predictor
 ```
 ### 2. Install dependencies
 ```
